@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+}
+
+#three-canvas {
+  /* canvus를 그냥 두면 스크롤이 생기거나 할 수 있기 때문에 다음과 같은 코드를 작성 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: black;
+}

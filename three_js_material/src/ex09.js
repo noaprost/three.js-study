@@ -1,0 +1,116 @@
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+// ----- 주제: 여러가지 텍스쳐가 적용된 큐브
+
+export default function example() {
+  // 텍스쳐 이미지 로드
+  const loadingManager = new THREE.LoadingManager();
+  loadingManager.onStart = () => {
+    console.log("로딩 시작!");
+  };
+
+  // 이미지가 로드 될 떄마다 뭔가를 해줘야 할 때 이 함수를 이용할 수 있음
+  loadingManager.onProgress = (img) => {
+    console.log(img + " 로드 중!");
+  };
+
+  loadingManager.onLoad = () => {
+    console.log("모든 이미지 로드 완료!");
+  };
+
+  loadingManager.onError = () => {
+    console.log("로드 에러!");
+  };
+
+  // 인자로 넣어주면 텍스쳐 로더를 통해서 이미지들을 로드할 때 로딩 매니저가 동작함
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+
+  const rightTexture = textureLoader.load("/textures/mcstyle/right.png");
+  const leftTexture = textureLoader.load("/textures/mcstyle/left.png");
+  const topTexture = textureLoader.load("/textures/mcstyle/top.png");
+  const bottomTexture = textureLoader.load("/textures/mcstyle/bottom.png");
+  const frontTexture = textureLoader.load("/textures/mcstyle/front.png");
+  const backTexture = textureLoader.load("/textures/mcstyle/back.png");
+
+  const materials = [
+    new THREE.MeshBasicMaterial({ map: rightTexture }),
+    new THREE.MeshBasicMaterial({ map: leftTexture }),
+    new THREE.MeshBasicMaterial({ map: topTexture }),
+    new THREE.MeshBasicMaterial({ map: bottomTexture }),
+    new THREE.MeshBasicMaterial({ map: frontTexture }),
+    new THREE.MeshBasicMaterial({ map: backTexture }),
+  ];
+
+  // 마인크래프트처럼 픽셀이 살아있는 이미지로 만들어줌
+  rightTexture.magFilter = THREE.NearestFilter;
+  leftTexture.magFilter = THREE.NearestFilter;
+  topTexture.magFilter = THREE.NearestFilter;
+  bottomTexture.magFilter = THREE.NearestFilter;
+  frontTexture.magFilter = THREE.NearestFilter;
+  bottomTexture.magFilter = THREE.NearestFilter;
+
+  // Renderer
+  const canvas = document.querySelector("#three-canvas");
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+
+  // Scene
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("white");
+
+  // Camera
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  camera.position.y = 1.5;
+  camera.position.z = 4;
+  scene.add(camera);
+
+  // Light
+  const ambientLight = new THREE.AmbientLight("white", 0.5);
+  const directionalLight = new THREE.DirectionalLight("white", 1);
+  directionalLight.position.set(1, 1, 2);
+  scene.add(ambientLight, directionalLight);
+
+  // Controls
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+
+  // Mesh
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const mesh = new THREE.Mesh(geometry, materials);
+
+  scene.add(mesh);
+
+  // 그리기
+  const clock = new THREE.Clock();
+
+  function draw() {
+    const delta = clock.getDelta();
+
+    controls.update();
+
+    renderer.render(scene, camera);
+    renderer.setAnimationLoop(draw);
+  }
+
+  function setSize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+  }
+
+  // 이벤트
+  window.addEventListener("resize", setSize);
+
+  draw();
+}
