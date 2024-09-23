@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as CANNON from "cannon-es";
+import { PreventDragClick } from "./PreventDragClick";
 
-// ----- 주제: Contact Material
+// ----- 주제: Force
 /**
  * cannon.js에서도 재질을 설정할 수 있음
  * 마찰력과 반발력을 표현하기 위함
@@ -68,26 +69,6 @@ export default function example() {
   );
   cannonWorld.defaultContactMaterial = defaultContactMaterial;
 
-  const rubberDefaultContactMaterial = new CANNON.ContactMaterial(
-    rubberMaterial,
-    defaultMaterial,
-    {
-      friction: 0.5,
-      restitution: 0.7,
-    }
-  );
-  cannonWorld.addContactMaterial(rubberDefaultContactMaterial);
-
-  const ironDefaultContactMaterial = new CANNON.ContactMaterial(
-    ironMaterial,
-    defaultMaterial,
-    {
-      friction: 0.5,
-      restitution: 0,
-    }
-  );
-  cannonWorld.addContactMaterial(ironDefaultContactMaterial);
-
   // cannon 세계의 바닥
   const floorShape = new CANNON.Plane();
   const floorBody = new CANNON.Body({
@@ -104,7 +85,7 @@ export default function example() {
     mass: 1,
     position: new CANNON.Vec3(0, 20, 0),
     shape: sphereShape,
-    material: ironMaterial,
+    material: defaultMaterial,
   });
   cannonWorld.addBody(sphereBody);
 
@@ -141,6 +122,14 @@ export default function example() {
     sphereMesh.position.copy(sphereBody.position); // 위치
     sphereMesh.quaternion.copy(sphereBody.quaternion); // 회전
 
+    // 속도 감소
+    sphereBody.velocity.x *= 0.98;
+    sphereBody.velocity.y *= 0.98;
+    sphereBody.velocity.z *= 0.98;
+    sphereBody.angularVelocity.x *= 0.98;
+    sphereBody.angularVelocity.y *= 0.98;
+    sphereBody.angularVelocity.z *= 0.98;
+
     controls.update();
 
     renderer.render(scene, camera);
@@ -156,6 +145,19 @@ export default function example() {
 
   // 이벤트
   window.addEventListener("resize", setSize);
+  canvas.addEventListener("click", (e) => {
+    if (preventDragClick.mouseMoved) return;
+    // 힘은 클릭할수록 누적이 되기 때문에 이를 원하지 않는다면 아래 코드를 작성하면 됨
+    sphereBody.velocity.x = 0;
+    sphereBody.velocity.y = 0;
+    sphereBody.velocity.z = 0;
+    sphereBody.angularVelocity.x = 0;
+    sphereBody.angularVelocity.y = 0;
+    sphereBody.angularVelocity.z = 0;
+    sphereBody.applyForce(new CANNON.Vec3(-500, 0, 0), sphereBody.position);
+  });
+
+  const preventDragClick = new PreventDragClick(canvas);
 
   draw();
 }
