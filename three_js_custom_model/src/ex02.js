@@ -43,18 +43,20 @@ export default function example() {
   // gltf loader
   const gltfLoader = new GLTFLoader();
   let mixer;
-  gltfLoader.load("./models/t_last_ilbuni.glb", (gltf) => {
-    const ilbuniMesh = gltf.scene.children[0];
-    ilbuniMesh.rotation.y = THREE.MathUtils.degToRad(180);
-    scene.add(ilbuniMesh);
+  gltfLoader.load("./models/gamgyuri.glb", (gltf) => {
+    console.log(gltf);
+    const gamgyuriMesh = gltf.scene.children[0];
+    gamgyuriMesh.rotation.y = THREE.MathUtils.degToRad(180);
+    console.log(gamgyuriMesh);
+    scene.add(gamgyuriMesh);
 
-    mixer = new THREE.AnimationMixer(ilbuniMesh);
+    mixer = new THREE.AnimationMixer(gamgyuriMesh);
     const actions = [];
     actions[0] = mixer.clipAction(gltf.animations[0]);
     actions[1] = mixer.clipAction(gltf.animations[1]);
-    actions[0].repetitions = 2; // 애니메이션의 반복 횟수를 조절 가능
+    actions[1].repetitions = 1; // 애니메이션의 반복 횟수를 조절 가능
     actions[0].clampWhenFinished = true; // 애니메이션을 시작했던 자세로 멈추게 하고 싶을 경우 true로 설정
-    actions[0].play();
+    actions[1].play();
     // actions[1].play();
   });
 
