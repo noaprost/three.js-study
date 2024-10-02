@@ -84,6 +84,7 @@ export default function example() {
 
   function checkIntersects() {
     if (preventDragClick.mouseMoved) return;
+    
     // 카메라부터 마우스 클릭 지점으로 광선을 쏴줌
     raycaster.setFromCamera(mouse, camera);
 
